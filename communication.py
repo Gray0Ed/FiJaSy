@@ -15,7 +15,6 @@ class TestServerCommunication(unittest.TestCase):
 
       def setUp(self):
             self.th = serverThread()
-
       def test_send_hello(self):
             self.th.start()
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

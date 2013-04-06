@@ -3,8 +3,9 @@ import curses.textpad
 import time
 import atexit
 import sys
-import settings
+import traceback
 
+import settings
 
 class Displayable(object):
     BULLET_STATE_NORMAL = 0
@@ -93,6 +94,20 @@ def update_display(game):
     raise NotImplementedError
 
 
+class DummyDisplayable(Displayable):
+    def our_hp(self):
+        return 18
+    def enemy_hp(self):
+        return 22
+    def our_CPS(self):
+        return 4.11
+    def enemy_CPS(self):
+        return 5.8
+    def our_typo_rate(self):
+        return 0.1
+    def enemy_typo_rate(self):
+        return 0.01
+
 class TerminalDisplay:
     BEGIN_X = 0
     BEGIN_Y = 0
@@ -100,6 +115,7 @@ class TerminalDisplay:
     def __init__(self, width=settings.DISPLAY_WIDTH, height=settings.DISPLAY_HEIGHT):
         self.width = width
         self.height = height
+        self.HP_DIGITS = len(str(settings.PLYAERS_MAX_HP))
 
     def init_systems(self):
         self.stdscr = curses.initscr()
@@ -120,11 +136,13 @@ class TerminalDisplay:
         atexit.register(exit_func)
 
     def init_color_pairs(self):
-        counter = 0
-        self.color_pairs_map = {}
+        counter = 1
+        self.color_pairs_map = {(0, 7): 0}
         for fg in xrange(8):
             for bg in xrange(8):
-                curses.init_color(counter, fg, bg)
+                if fg == 0 and bg == 7:
+                    continue
+                curses.init_pair(counter, fg, bg)
                 self.color_pairs_map[(fg, bg)] = counter
                 counter += 1
 
@@ -142,13 +160,50 @@ class TerminalDisplay:
 
     def draw_game(self, game):
         all_background = settings.DEFAULT_BACKGROUND_COLOR
+
+        if player_hitted_recently:
+            all_background = settings.AFTER_DAMAGE_BACKGROUND_COLOR
         words_background = settings.DEFAULT_BACKGROUND_COLOR
 
         if player_typing_error:
             words_background = settings.TYPO_FLASH_COLOR
-        if player_hitted_recently:
-            all_background = settings.AFTER_DAMAGE_BACKGROUND_COLOR
 
+        self.draw_info_bar(game)
+
+    def draw_info_bar(self, game):
+        for y in xrange(settings.PLAYERS_INFO_Y):
+            self.draw_string_with_colors(' ' * settings.DISPLAY_WIDTH, y, 0,
+                            settings.TEXT_COLOR, settings.INFO_BAR_BACKGROUND)
+        info_r11 = ((" " * settings.PLAYERS_INFO_MARGIN + "Your HP: %s")
+                            % str(game.our_hp()))
+        info_r13 = (("Enemy HP: %s" + " " * (settings.PLAYERS_INFO_MARGIN + 7))
+                            % str(game.enemy_hp()))
+        info_r12 = " " * (settings.DISPLAY_WIDTH - len(info_r11) - len(info_r12))
+        self.draw_string_with_colors(info_r11 + info_r12 + info_r13,
+                        settings.PLAYERS_INFO_Y, 0,
+                        settings.TEXT_COLOR, settings.INFO_BAR_BACKGROUND)
+
+        info_r21 = ((" " * (settings.PLAYERS_INFO_MARGIN + 5) + "CPS: %s")
+                    % str(game.our_CPS()))
+        info_r23 = ((" " * 6 + "CPS: %s" + " " * (settings.PLAYERS_INFO_MARGIN + 5))
+                    % str(game.enemy_CPS()))
+        info_r22 = " " * (settings.DISPLAY_WIDTH - len(info_r21) - len(info_r23))
+
+        self.draw_string_with_colors(info_r21 + info_r22 + info_r23,
+                        settings.PLAYERS_INFO_Y + 1, 0,
+                        settings.TEXT_COLOR, settings.INFO_BAR_BACKGROUND)
+
+        info_r31 = ((" " * (settings.PLAYERS_INFO_MARGIN + 5) + "typo raito: %s")
+                    % game.our_typo_rate())
+        info_r33 = ((" " * 6 + "typo raito: %s" + " " * settings.PLAYERS_INFO_MARGIN)
+                    % str(game.enemy_typo_rate()))
+        info_r32 = " " * (settings.DISPLAY_WIDTH - len(info_r31) - len(info_r33))
+        self.draw_string_with_colors(info_r31 + info_r32 + info_r33,
+                        settings.PLAYERS_INFO_Y + 2, 0,
+                        settings.TEXT_COLOR, settings.INFO_BAR_BACKGROUND)
+        self.draw_string_with_colors("_" * DISPLAY_WIDTH,
+                settings.PLAYERS_INFO_Y + 3, 0, settings.TEXT_COLOR,
+                settings.INFO_BAR_BACKGROUND)
 
 terminal_game = TerminalDisplay()
 
@@ -180,16 +235,20 @@ init_everything()
 for i in xrange(64):
     print >> sys.stderr, curses.pair_content(i)
 
+if __name__ == "__main__":
+    try:
+        while True:
+            chars = []
+            chars = get_user_input()
+            if player_control(chars, terminal_game):
+                break
+            terminal_game.draw_info_bar(DummyDisplayable())
 
-while True:
-    chars = []
-    chars = get_user_input()
-    if player_control(chars, terminal_game):
-        break
+        # terminal_game.stdscr.noutrefresh()
+        # terminal_game.stdscr.clear()
+        # terminal_game.stdscr.addstr(y, x, "hello world".encode('utf_8'))
+            terminal_game.stdscr.refresh()
 
-    terminal_game.stdscr.noutrefresh()
-    terminal_game.stdscr.clear()
-    terminal_game.stdscr.addstr(y, x, "hello world".encode('utf_8'))
-    terminal_game.stdscr.refresh()
-
-    time.sleep(0.05)
+            time.sleep(0.05)
+    finally:
+        terminal_game.tear_down_systems()

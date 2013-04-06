@@ -24,6 +24,5 @@ def play_game(sock, game, pressed_buttons):
         game.charPress(1, ch)
 
 
-
 if __name__ == '__main__':
       unittest.main()

@@ -36,13 +36,16 @@ class Displayable(object):
         raise NotImplementedError
 
     def local_player_hitted(self):
-        """Returns number of line where player was
-           hited by enemy bullet. -1 if no hit."""
+        """Returns list of lines where player was hit"""
         raise NotImplementedError
 
     def enemy_player_hitted(self):
-        """Returns number of line where enemy player was
-           hited by local player bullet. -1 if no hit."""
+        """Returns list of lines where enemy player was hit."""
+        raise NotImplementedError
+    
+    def recent_explosions(self):
+        """Returns list of explosions"""
+
         raise NotImplementedError
 
     def typing_error(self):

@@ -20,17 +20,13 @@ try:
 finally:
     sock.close()
 
-print "Sent:     {}".format(data)
-print "Received: {}".format(received)
-
 #main action:
 
 pressed_buttons = []
-game = Game(
+game = Game(NUMBER_OF_BATTLE_ROWS, NUMBER_OF_BATTLE_COLUMNS, DICTIONARY)
+
 while True:
     pressed_buttons = get_user_input()
-    
-    for ch in pressed_buttons:
-        game.charPress(ch)
-
+    play_game(sock, game, pressed_buttons)
+    update_display()
 

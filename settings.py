@@ -61,6 +61,6 @@ DISPLAY_HEIGHT = 50
 ACTION_PADDING_TOP = 10
 ACTION_PADDING_BOTTOM = 10
 MAX_STRING_LEN = 20
-dictionary = {
+DICTIONARY = {
         0 : 'candy',
         }

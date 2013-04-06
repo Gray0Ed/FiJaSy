@@ -42,7 +42,7 @@ class Displayable(object):
     def enemy_player_hitted(self):
         """Returns list of lines where enemy player was hit."""
         raise NotImplementedError
-    
+
     def recent_explosions(self):
         """Returns list of explosions"""
 
@@ -181,7 +181,7 @@ class TerminalDisplay:
                             % str(game.our_hp()))
         info_r13 = (("Enemy HP: %s" + " " * (settings.PLAYERS_INFO_MARGIN + 7))
                             % str(game.enemy_hp()))
-        info_r12 = " " * (settings.DISPLAY_WIDTH - len(info_r11) - len(info_r12))
+        info_r12 = " " * (settings.DISPLAY_WIDTH - len(info_r11) - len(info_r13))
         self.draw_string_with_colors(info_r11 + info_r12 + info_r13,
                         settings.PLAYERS_INFO_Y, 0,
                         settings.TEXT_COLOR, settings.INFO_BAR_BACKGROUND)
@@ -204,7 +204,7 @@ class TerminalDisplay:
         self.draw_string_with_colors(info_r31 + info_r32 + info_r33,
                         settings.PLAYERS_INFO_Y + 2, 0,
                         settings.TEXT_COLOR, settings.INFO_BAR_BACKGROUND)
-        self.draw_string_with_colors("_" * DISPLAY_WIDTH,
+        self.draw_string_with_colors("_" * settings.DISPLAY_WIDTH,
                 settings.PLAYERS_INFO_Y + 3, 0, settings.TEXT_COLOR,
                 settings.INFO_BAR_BACKGROUND)
 
@@ -233,12 +233,12 @@ def player_control(chars, tg):
     return False
 
 
-init_everything()
-
-for i in xrange(64):
-    print >> sys.stderr, curses.pair_content(i)
 
 if __name__ == "__main__":
+    init_everything()
+
+    for i in xrange(64):
+        print >> sys.stderr, curses.pair_content(i)
     try:
         while True:
             chars = []

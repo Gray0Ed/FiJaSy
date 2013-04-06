@@ -1,11 +1,9 @@
 import curses
 import curses.textpad
 import time
-import atexit
-import sys
-import traceback
-
 import settings
+import sys
+
 
 class Displayable(object):
     BULLET_STATE_NORMAL = 0
@@ -45,7 +43,6 @@ class Displayable(object):
 
     def recent_explosions(self):
         """Returns list of explosions"""
-
         raise NotImplementedError
 
     def typing_error(self):
@@ -94,22 +91,39 @@ def get_user_input():
 
 def update_display(game):
     """Call this function draw current game state into terminal."""
-    raise NotImplementedError
+    terminal_game.draw_game(game)
 
 
 class DummyDisplayable(Displayable):
+    def words_to_type(self):
+        a = map(lambda x: (x, 0), settings.DICTIONARY)
+        a[0] = (settings.DICTIONARY[0], 2)
+        return a
+
     def our_hp(self):
         return 18
+
     def enemy_hp(self):
         return 22
+
     def our_CPS(self):
         return 4.11
+
     def enemy_CPS(self):
         return 5.8
+
     def our_typo_rate(self):
         return 0.1
+
     def enemy_typo_rate(self):
         return 0.01
+
+    def local_player_hitted(self):
+        return []
+
+    def typing_error(self):
+        return False
+
 
 class TerminalDisplay:
     BEGIN_X = 0
@@ -133,10 +147,10 @@ class TerminalDisplay:
         self.win = curses.newwin(self.height, self.width, self.BEGIN_Y, self.BEGIN_X)
         self.closed = False
 
-        def exit_func():
-            self.tear_down_systems()
+#        def exit_func():
+#            self.tear_down_systems()
 
-        atexit.register(exit_func)
+#        atexit.register(exit_func)
 
     def init_color_pairs(self):
         counter = 1
@@ -150,7 +164,8 @@ class TerminalDisplay:
                 counter += 1
 
     def draw_string_with_colors(self, s, y, x, fg, bg):
-        self.stdscr.addstr(y, x, s.encode('utf_8'), self.color_pairs_map[(fg, bg)])
+        self.stdscr.addstr(y, x, s.encode('utf_8'), curses.color_pair(self.color_pairs_map[(fg, bg)]))
+        return len(s)
 
     def tear_down_systems(self):
         if self.closed:
@@ -164,14 +179,33 @@ class TerminalDisplay:
     def draw_game(self, game):
         all_background = settings.DEFAULT_BACKGROUND_COLOR
 
-        if player_hitted_recently:
+        if game.local_player_hitted():
             all_background = settings.AFTER_DAMAGE_BACKGROUND_COLOR
-        words_background = settings.DEFAULT_BACKGROUND_COLOR
-
-        if player_typing_error:
-            words_background = settings.TYPO_FLASH_COLOR
 
         self.draw_info_bar(game)
+        self.draw_words(game, all_background)
+        self.draw_string_with_colors('-' * settings.DISPLAY_WIDTH,
+                settings.NUMBER_OF_BATTLE_ROWS + settings.BATTLE_START_Y, 0,
+                curses.COLOR_WHITE, all_background)
+        #self.draw_battle(game)
+
+    def draw_words(self, game, bg):
+        if game.typing_error():
+            bg = settings.TYPO_FLASH_COLOR
+        words_to_type = game.words_to_type()
+        assert len(words_to_type) == settings.NUMBER_OF_BATTLE_ROWS
+        for dy, (word, ntyped) in enumerate(words_to_type):
+            y = settings.BATTLE_START_Y + dy
+            x = 0
+            x += self.draw_string_with_colors(
+                    " " * (settings.MAX_WORD_LEN - len(word)),
+                    y, 0, curses.COLOR_WHITE, bg)
+
+            if ntyped:
+                x += self.draw_string_with_colors(word[:ntyped], y, x,
+                        settings.TYPED_TEXT_COLOR, bg)
+            self.draw_string_with_colors(word[ntyped:] + '||', y, x,
+                    settings.TEXT_COLOR, bg)
 
     def draw_info_bar(self, game):
         for y in xrange(settings.PLAYERS_INFO_Y):
@@ -211,41 +245,15 @@ class TerminalDisplay:
 terminal_game = TerminalDisplay()
 
 
-x = 0
-y = 0
-
-
-def player_control(chars, tg):
-    global x, y
-    for c in chars:
-        if c == ord('q'):
-            return True  # Exit the while()
-        elif c == curses.KEY_HOME:
-            x = y = 0
-        elif c == curses.KEY_LEFT:
-            x = max(0, x - 1)
-        elif c == curses.KEY_RIGHT:
-            x = min(tg.width - 1, x + 1)
-        elif c == curses.KEY_UP:
-            y = max(0, y - 1)
-        elif c == curses.KEY_DOWN:
-            y = min(tg.height, y + 1)
-    return False
-
-
-
 if __name__ == "__main__":
     init_everything()
 
-    for i in xrange(64):
-        print >> sys.stderr, curses.pair_content(i)
     try:
         while True:
             chars = []
             chars = get_user_input()
-            if player_control(chars, terminal_game):
-                break
-            terminal_game.draw_info_bar(DummyDisplayable())
+            update_display(DummyDisplayable())
+            #terminal_game.draw_info_bar(DummyDisplayable())
 
         # terminal_game.stdscr.noutrefresh()
         # terminal_game.stdscr.clear()

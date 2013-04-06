@@ -14,11 +14,6 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
     sock.connect((HOST,PORT))
-    sock.sendall(data+"\n")
-
-    received = sock.recv(1024)
-finally:
-    sock.close()
 
 #main action:
 
@@ -28,5 +23,6 @@ game = Game(NUMBER_OF_BATTLE_ROWS, NUMBER_OF_BATTLE_COLUMNS, DICTIONARY)
 while True:
     pressed_buttons = get_user_input()
     play_game(sock, game, pressed_buttons)
-    update_display()
+    update_display(game)
+
 

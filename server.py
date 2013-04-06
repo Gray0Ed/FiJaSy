@@ -24,5 +24,5 @@ game = Game(NUMBER_OF_BATTLE_ROWS, NUMBER_OF_BATTLE_COLUMNS, DICTIONARY)
 while True:
     pressed_buttons = get_user_input()
     play_game(sock, game, pressed_buttons)
-    update_display()
+    update_display(game)
 

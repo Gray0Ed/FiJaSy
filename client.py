@@ -23,6 +23,7 @@ game = Game(NUMBER_OF_BATTLE_ROWS, NUMBER_OF_BATTLE_COLUMNS, DICTIONARY)
 period = 0
 
 while True:
+    period += 1
     if period == PERIODICITY - 1:
         period = 0
         game.singleMove()

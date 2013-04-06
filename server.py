@@ -12,7 +12,8 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
     self.period = 0
     
     def handle(self):
-        if (period == PERIODICITY - 1):
+        period += 1
+        if period == PERIODICITY - 1:
             period = 0
             game.singleMove()
 

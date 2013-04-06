@@ -20,7 +20,14 @@ try:
 pressed_buttons = []
 game = Game(NUMBER_OF_BATTLE_ROWS, NUMBER_OF_BATTLE_COLUMNS, DICTIONARY)
 
+period = 0
+
 while True:
+    if period == PERIODICITY - 1:
+        period = 0
+        game.singleMove()
+
+
     pressed_buttons = get_user_input()
     play_game(sock, game, pressed_buttons)
     update_display(game)

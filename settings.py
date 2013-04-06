@@ -53,6 +53,7 @@ OUR_BULLETS_COLOR = curses.COLOR_CYAN
 ENEMY_BULLETS_COLOR = curses.COLOR_BLUE
 AFTER_DAMAGE_BACKGROUND_COLOR = curses.COLOR_MAGENTA
 TEXT_COLOR = curses.COLOR_WHITE
+TYPED_TEXT_COLOR = curses.COLOR_YELLOW
 INFO_BAR_BACKGROUND = curses.COLOR_BLACK
 
 
@@ -62,15 +63,22 @@ NUMBER_OF_BATTLE_COLUMNS = 100
 
 DISPLAY_WIDTH = 120
 DISPLAY_HEIGHT = 50
-ACTION_PADDING_TOP = 10
-ACTION_PADDING_BOTTOM = 10
 PLAYERS_INFO_Y = 2
+BATTLE_START_Y = PLAYERS_INFO_Y + 4
 PLAYERS_INFO_MARGIN = 4
 PLYAERS_MAX_HP = 10
 TYPO_RATE_NUMBER_LEN = 4
 CPS_NUMBER_LEN = 4
 
-MAX_STRING_LEN = 20
-DICTIONARY = {
-        0: 'candy',
-    }
+MAX_WORD_LEN = 19
+DICTIONARY = [
+    'star', 'candy', 'wings', 'salutations',
+    'power', 'string', 'carburetor', 'shopping',
+    'blond', 'steak', 'speakers', 'grimace', 'case',
+    'stubborn', 'couch', 'announcement', 'cat', 'elevator',
+    'marker', 'swish', 'gangrene', 'scurrilous', 'photon'
+    'cabal', 'stentor', 'youngish', 'swish', 'elver',
+    'organza', 'febrile', 'lolol'
+]
+
+assert len(DICTIONARY) == NUMBER_OF_BATTLE_ROWS

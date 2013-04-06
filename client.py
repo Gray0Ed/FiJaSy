@@ -2,6 +2,8 @@ import socket
 import sys
 import game
 import game_display
+import communication
+import setting
 
 HOST, PORT = "localhost", 9999
 data = " ".join(sys.argv[1:])
@@ -22,5 +24,13 @@ print "Sent:     {}".format(data)
 print "Received: {}".format(received)
 
 #main action:
+
+pressed_buttons = []
+game = Game(
+while True:
+    pressed_buttons = get_user_input()
+    
+    for ch in pressed_buttons:
+        game.charPress(ch)
 
 

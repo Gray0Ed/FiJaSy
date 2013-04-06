@@ -1,6 +1,8 @@
 import SocketServer
 import game
-
+import game_display
+import communication
+import settings
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
 
@@ -16,6 +18,7 @@ server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
 
 server.serve_forever()
 
+pressed_buttons = []
 
 while True:
     pressed_buttons = get_user_input()

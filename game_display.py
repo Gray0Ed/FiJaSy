@@ -2,7 +2,6 @@ import curses
 import curses.textpad
 import time
 import settings
-import sys
 
 
 class Displayable(object):
@@ -94,6 +93,10 @@ def update_display(game):
     terminal_game.draw_game(game)
 
 
+def restore_terminal_display():
+    terminal_game.tear_down_systems()
+
+
 class DummyDisplayable(Displayable):
     def words_to_type(self):
         a = map(lambda x: (x, 0), settings.DICTIONARY)
@@ -123,6 +126,15 @@ class DummyDisplayable(Displayable):
 
     def typing_error(self):
         return False
+
+    def recent_explosions(self):
+        return [(0, 0), (5, 1)]
+
+    def our_bullets(self):
+        return [(0, 0, 0), (5, 0, 0), (20, 80, 0)]
+
+    def enemy_bullets(self):
+        return [(0, 1, 0), (5, 1, 0), (10, 90, 0)]
 
 
 class TerminalDisplay:
@@ -187,7 +199,43 @@ class TerminalDisplay:
         self.draw_string_with_colors('-' * settings.DISPLAY_WIDTH,
                 settings.NUMBER_OF_BATTLE_ROWS + settings.BATTLE_START_Y, 0,
                 curses.COLOR_WHITE, all_background)
-        #self.draw_battle(game)
+        self.draw_battle(game, all_background)
+
+    def draw_battle(self, game, all_background):
+        sby = settings.BATTLE_START_Y
+        eby = settings.BATTLE_START_Y + settings.NUMBER_OF_BATTLE_ROWS
+        sbx = settings.BATTLE_START_X
+        ebx = settings.BATTLE_START_X + settings.NUMBER_OF_BATTLE_COLUMNS
+        for y in xrange(sby, eby):
+            self.draw_string_with_colors(" " * (ebx - sbx), y, sbx,
+                    curses.COLOR_WHITE, all_background)
+        explos = set(game.recent_explosions())
+
+        bullets = (map(lambda x: (x, True), game.our_bullets()) +
+                   map(lambda x: (x, False), game.enemy_bullets()))
+
+        for (by, bx, _), ours in bullets:
+            expl = False
+            if (by, bx) in explos:
+                expl = True
+            by += settings.BATTLE_START_Y
+            bx += settings.BATTLE_START_X
+
+            if ours:
+                bcolor = settings.OUR_BULLETS_COLOR
+                char = settings.OUR_BULLET_CHAR
+            else:
+                bcolor = settings.ENEMY_BULLETS_COLOR
+                char = settings.ENEMY_BULLET_CHAR
+
+            bg = all_background
+
+            if expl:
+                bg = settings.BULLET_EXPL_BACKGROUND
+                bcolor = settings.BULLET_EXPL_CHAR_COLOR
+                char = settings.BULLET_EXPL_CHAR
+
+            self.draw_string_with_colors(char, by, bx, bcolor, bg)
 
     def draw_words(self, game, bg):
         if game.typing_error():

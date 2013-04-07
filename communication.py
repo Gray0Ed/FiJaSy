@@ -5,6 +5,9 @@ import socket
 import threading
 from time import sleep
 
+def wait_period():
+    sleep(0.05)
+
 def send_list(sock, ch_list):
     sock.sendall(sock)
 

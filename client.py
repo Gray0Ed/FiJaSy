@@ -16,7 +16,7 @@ try:
 #main action:
 
     pressed_buttons = []
-    game = Game(NUMBER_OF_BATTLE_ROWS, NUMBER_OF_BATTLE_COLUMNS, DICTIONARY)
+    game = game.Game(settings.NUMBER_OF_BATTLE_COLUMNS, settings.DICTIONARY)
 
     period = 0
 
@@ -27,8 +27,10 @@ try:
             game.singleMove()
 
 
-        pressed_buttons = get_user_input()
+        pressed_buttons = game_display.get_user_input()
         play_game(sock, game, pressed_buttons)
         update_display(game)
+        communication.wait_period()
+
 except Exception as e:
     print e

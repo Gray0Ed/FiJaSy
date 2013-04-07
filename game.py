@@ -71,6 +71,7 @@ class Game(game_display.Displayable):
                 if (self.dictionary[row] == pref):
                     self.highlight = [0] * self.height
                     self.board[0][row][0] = True
+                    self.currentWord = ''
                     return row
                 else:
                     tmp_high[row] = 1
@@ -137,12 +138,15 @@ if __name__ == "__main__":
     x.charPress('a')
     x.charPress('t')
     x.singleMove()
-    game_display.update_display(x)
 
     try:
         while True:
+            ch = []
+            ch = game_display.get_user_input()
+            for c in ch:
+                x.charPress(chr(c))
+
             game_display.update_display(x)
-            #terminal_game.draw_info_bar(DummyDisplayable())
             x.singleMove()
         # terminal_game.stdscr.noutrefresh()
         # terminal_game.stdscr.clear()
@@ -152,4 +156,3 @@ if __name__ == "__main__":
             time.sleep(0.05)
     finally:
         game_display.terminal_game.tear_down_systems()
-

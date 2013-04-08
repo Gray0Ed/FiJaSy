@@ -201,7 +201,13 @@ class TerminalDisplay:
                 settings.NUMBER_OF_BATTLE_ROWS + settings.BATTLE_START_Y, 0,
                 curses.COLOR_WHITE, all_background)
         self.draw_battle(game, all_background)
+        self.draw_debug(game)
         terminal_game.stdscr.refresh()
+
+    def draw_debug(self, game):
+        sdebug_y = settings.BATTLE_START_Y + settings.NUMBER_OF_BATTLE_ROWS
+        self.draw_string_with_colors(game.debug(), sdebug_y, 0,
+                curses.COLOR_WHITE, curses.COLOR_BLACK)
 
     def draw_battle(self, game, all_background):
         sby = settings.BATTLE_START_Y
@@ -209,7 +215,7 @@ class TerminalDisplay:
         sbx = settings.BATTLE_START_X
         ebx = settings.BATTLE_START_X + settings.NUMBER_OF_BATTLE_COLUMNS
         for y in xrange(sby, eby):
-            self.draw_string_with_colors(" " * (ebx - sbx), y, sbx,
+            self.draw_string_with_colors(" " * (ebx - sbx) + "||", y, sbx,
                     curses.COLOR_WHITE, all_background)
         explos = set(game.recent_explosions())
 

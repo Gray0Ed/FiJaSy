@@ -11,21 +11,30 @@ my_game = game.Game(settings.NUMBER_OF_BATTLE_COLUMNS, settings.DICTIONARY)
 class MyTCPHandler(SocketServer.BaseRequestHandler):
     
     def handle(self):
+        while True:
+            my_game.singleMove()
+            self.data = self.request.recv(1024).strip()
+            
+            pressed_buttons = game_display.get_user_input()
+           
+            char_to_send = '#'
+            for ch in pressed_buttons:
+                char_to_send += chr(ch)
+            # sending pressed buttons to client
+            self.request.sendall(char_to_send)
 
-        my_game.singleMove()
-        self.data = self.request.recv(1024).strip()
-        
-        #self.pressed_buttons = communication.get_user_input()
-        #self.request.sendall(pressed_buttons)
+            for ch in char_to_send:
+                my_game.charPress(0, ch)
 
-        #for ch in pressed_buttons:
-        #    my_game.charPress(0, ch)
+            # getting client info
+            # self.data is already string of chr, no need to call chr()
+            opponent_char = self.data
+            for ch in opponent_char:
+                my_game.charPress(1, ch)
 
-        # getting client info
-        
-        #self.pressed_buttons = self.data
-        game_display.update_display(my_game)
-        game_display.terminal_game.stdscr.refresh()
+            game_display.update_display(my_game)
+            game_display.terminal_game.stdscr.refresh()
+            communication.wait_period()
 
 
 HOST, PORT = "localhost", 9999
@@ -33,4 +42,6 @@ server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
 
 server.serve_forever()
 
+
+game_display.terminal_game.tear_down_systems()
 

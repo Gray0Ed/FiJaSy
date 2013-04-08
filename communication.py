@@ -3,28 +3,31 @@ import thread
 import time
 import socket
 import threading
+import game
 from time import sleep
 
 def wait_period():
     sleep(0.05)
 
 def send_list(sock, ch_list):
-    sock.sendall(sock)
+    stri = ''
+    for c in ch_list:
+        stri += chr(c)
 
-def get_opponent_input(sock):
-    return sock.recv(1024)
+    sock.sendall(stri)
 
-def play_game(sock, game, pressed_buttons):
+def play_game(sock, my_game, pressed_buttons):
     send_list(sock, pressed_buttons)
 
     for ch in pressed_buttons:
-        game.charPress(0, ch)
+        my_game.charPress(0, chr(ch))
     
-    pressed_buttons = get_opponent_input()
+    char_to_press = sock.recv(1024)
 
-    for ch in pressed_buttons:
-        game.charPress(1, ch)
+    for ch in char_to_press:
+        my_game.charPress(1, ch)
 
 
 if __name__ == '__main__':
       unittest.main()
+

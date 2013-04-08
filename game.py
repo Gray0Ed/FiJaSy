@@ -14,9 +14,11 @@ class Game(game_display.Displayable):
         self.board = {}
         self.board[0] = [[False for _ in range(w) ] for _ in range (self.height)]
         self.board[1] = [[False for _ in range(w) ] for _ in range (self.height)]
-        self.currentWord = ""
+        self.currentWord = { 0 : '', 1 : ''}
         self.dictionary = dictionary
-        self.highlight = [0] * self.height 
+        self.highlight = {}
+        self.highlight[0] = [0] * self.height 
+        self.highlight[1] = [0] * self.height
         self.HP = {0 : 0, 1 : 0}
         self.local_hits = []
         self.enemy_hits = []
@@ -41,7 +43,7 @@ class Game(game_display.Displayable):
                 self.board[0][row][column] = self.board[0][row][column - 1]
 
             for column in range(0, self.width - 1):
-                self.board[1][row][column] = self.board[0][row][column + 1]
+                self.board[1][row][column] = self.board[1][row][column + 1]
             
             self.board[0][row][0] = False
             self.board[1][row][ self.width - 1] = False
@@ -61,28 +63,28 @@ class Game(game_display.Displayable):
                             self.explosions.append( (row, column) )
         
        
-    def charPress(self, character):
-        self.currentWord += character
-        pref = self.currentWord
+    def charPress(self, player, character):
+        self.currentWord[player] += character
+        pref = self.currentWord[player]
         tmp_high = [0] * self.height
         match_seeked = False;
         for row in range(0, self.height):
             if (self.dictionary[row].startswith(pref)):
                 if (self.dictionary[row] == pref):
-                    self.highlight = [0] * self.height
-                    self.board[0][row][0] = True
-                    self.currentWord = ''
+                    self.highlight[player] = [0] * self.height
+                    self.board[player][row][ player * (self.width - 1) ] = True
+                    self.currentWord[player] = ''
                     return row
                 else:
                     tmp_high[row] = 1
                     match_seeked = True;
         
         if not match_seeked:
-            self.currentWord = self.currentWord[0 : -1]
+            self.currentWord[player] = self.currentWord[player][0 : -1]
             return WORD_UNMATCHED
 
         else:
-            self.highlight = tmp_high
+            self.highlight[player] = tmp_high
             return WORD_OK
 
     def our_bullets(self):
@@ -105,7 +107,7 @@ class Game(game_display.Displayable):
     def words_to_type(self):
         res = []
         for i in range(0, self.height):
-            res.append( (self.dictionary[i], self.highlight[i] * len(self.currentWord)))
+            res.append( (self.dictionary[i], self.highlight[0][i] * len(self.currentWord[0])))
 
         return res
 
@@ -134,17 +136,12 @@ class Game(game_display.Displayable):
 if __name__ == "__main__":
     game_display.init_everything()
     x = Game(100, settings.DICTIONARY)
-    x.charPress('c')
-    x.charPress('a')
-    x.charPress('t')
-    x.singleMove()
-
     try:
         while True:
             ch = []
             ch = game_display.get_user_input()
             for c in ch:
-                x.charPress(chr(c))
+                x.charPress(0, chr(c))
 
             game_display.update_display(x)
             x.singleMove()

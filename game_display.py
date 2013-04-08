@@ -85,6 +85,7 @@ def get_user_input():
         if c == -1:
             break
         chars += [c]
+
     return chars
 
 
@@ -200,6 +201,7 @@ class TerminalDisplay:
                 settings.NUMBER_OF_BATTLE_ROWS + settings.BATTLE_START_Y, 0,
                 curses.COLOR_WHITE, all_background)
         self.draw_battle(game, all_background)
+        terminal_game.stdscr.refresh()
 
     def draw_battle(self, game, all_background):
         sby = settings.BATTLE_START_Y
@@ -301,13 +303,6 @@ if __name__ == "__main__":
             chars = []
             chars = get_user_input()
             update_display(DummyDisplayable())
-            #terminal_game.draw_info_bar(DummyDisplayable())
-
-        # terminal_game.stdscr.noutrefresh()
-        # terminal_game.stdscr.clear()
-        # terminal_game.stdscr.addstr(y, x, "hello world".encode('utf_8'))
-            terminal_game.stdscr.refresh()
-
             time.sleep(0.05)
     finally:
         terminal_game.tear_down_systems()

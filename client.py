@@ -23,24 +23,18 @@ try:
         char_to_send = '#'
         for ch in pressed_buttons:
             char_to_send += chr(ch)
-        
+
         sock.sendall(char_to_send)
-        
+
         for ch in char_to_send:
             my_game.charPress(0, ch)
-        
+
         opponent_char = sock.recv(1024)
 
         for ch in opponent_char:
             my_game.charPress(1, ch)
 
         game_display.update_display(my_game)
-        game_display.terminal_game.stdscr.refresh()
         communication.wait_period()
-
-except Exception as e:
-    game_display.terminal_game.tear_down_systems()
-    print e
-
-game_display.terminal_game.tear_down_systems()
-
+finally:
+    game_display.restore_terminal_display()

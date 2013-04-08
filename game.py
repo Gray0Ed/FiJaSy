@@ -10,20 +10,20 @@ WORD_OK = -1
 class Game(game_display.Displayable):
     def __init__(self, w, dictionary):
         self.height = len(dictionary)
-        self.width = w 
+        self.width = w
         self.board = {}
         self.board[0] = [[False for _ in range(w) ] for _ in range (self.height)]
         self.board[1] = [[False for _ in range(w) ] for _ in range (self.height)]
         self.currentWord = { 0 : '', 1 : ''}
         self.dictionary = dictionary
         self.highlight = {}
-        self.highlight[0] = [0] * self.height 
+        self.highlight[0] = [0] * self.height
         self.highlight[1] = [0] * self.height
         self.HP = {0 : 0, 1 : 0}
         self.local_hits = []
         self.enemy_hits = []
         self.explosions = []
-    
+
     def print_me(self, player):
         for i in range(self.height):
             print self.board[player][i]
@@ -44,7 +44,7 @@ class Game(game_display.Displayable):
 
             for column in range(0, self.width - 1):
                 self.board[1][row][column] = self.board[1][row][column + 1]
-            
+
             self.board[0][row][0] = False
             self.board[1][row][ self.width - 1] = False
 
@@ -61,8 +61,8 @@ class Game(game_display.Displayable):
                             self.board[i][row][column] = False
                             self.board[1-i][row][column] = False
                             self.explosions.append( (row, column) )
-        
-       
+
+
     def charPress(self, player, character):
         self.currentWord[player] += character
         pref = self.currentWord[player]
@@ -78,7 +78,7 @@ class Game(game_display.Displayable):
                 else:
                     tmp_high[row] = 1
                     match_seeked = True;
-        
+
         if not match_seeked:
             self.currentWord[player] = self.currentWord[player][0 : -1]
             return WORD_UNMATCHED
@@ -93,7 +93,7 @@ class Game(game_display.Displayable):
             for column in range(0, self.width):
                 if (self.board[0][row][column]):
                     res.append((row, column, self.BULLET_STATE_NORMAL))
-        
+
         return res
 
     def enemy_bullets(self):
@@ -103,7 +103,7 @@ class Game(game_display.Displayable):
                 if (self.board[1][row][column]):
                     res.append((row, column, self.BULLET_STATE_NORMAL))
         return res
-    
+
     def words_to_type(self):
         res = []
         for i in range(0, self.height):
@@ -121,7 +121,7 @@ class Game(game_display.Displayable):
         tmp = self.enemy_hits;
         self.enemy_hits = []
         return tmp
-    
+
     def enemy_player_hitted(self):
         tmp = self.local_hits
         self.local_hits = []
@@ -141,15 +141,11 @@ if __name__ == "__main__":
             ch = []
             ch = game_display.get_user_input()
             for c in ch:
-                x.charPress(0, chr(c))
+                if c >= 0 and c <= 255:  # making sure it can be converted to char
+                    x.charPress(0, chr(c))
 
             game_display.update_display(x)
             x.singleMove()
-        # terminal_game.stdscr.noutrefresh()
-        # terminal_game.stdscr.clear()
-        # terminal_game.stdscr.addstr(y, x, "hello world".encode('utf_8'))
-            game_display.terminal_game.stdscr.refresh()
-
             time.sleep(0.05)
     finally:
-        game_display.terminal_game.tear_down_systems()
+        game_display.restore_terminal_display()

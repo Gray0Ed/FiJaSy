@@ -8,15 +8,16 @@ import settings
 game_display.init_everything()
 my_game = game.Game(settings.NUMBER_OF_BATTLE_COLUMNS, settings.DICTIONARY)
 
+
 class MyTCPHandler(SocketServer.BaseRequestHandler):
-    
+
     def handle(self):
         while True:
             my_game.singleMove()
             self.data = self.request.recv(1024).strip()
-            
+
             pressed_buttons = game_display.get_user_input()
-           
+
             char_to_send = '#'
             for ch in pressed_buttons:
                 char_to_send += chr(ch)
@@ -38,10 +39,8 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
 
 HOST, PORT = "localhost", 9999
-server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
-
-server.serve_forever()
-
-
-game_display.terminal_game.tear_down_systems()
-
+try:
+    server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
+    server.serve_forever()
+finally:
+    game_display.restore_terminal_display()

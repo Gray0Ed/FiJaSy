@@ -5,14 +5,17 @@ import game_display
 import communication
 import settings
 
-HOST, PORT = "localhost", 9999
-#data = " ".join(sys.argv[1:])
+
+if len(sys.argv) > 2:
+    HOST, PORT = sys.argv[1], int(sys.argv[2])
+else:
+    HOST, PORT = "192.168.0.10", 9999
 
 try:
     game_display.init_everything()
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((HOST,PORT))
-#main action:
+    sock.connect((HOST, PORT))
+    # main action:
 
     pressed_buttons = []
     my_game = game.Game(settings.NUMBER_OF_BATTLE_COLUMNS, settings.DICTIONARY)
